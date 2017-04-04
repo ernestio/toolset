@@ -1,21 +1,42 @@
 require 'circleci'
 
+abort "CIRCLE_TOKEN env var not set" if ENV['CIRCLE_TOKEN'].empty?
 
 CircleCi.configure do |config|
   config.token = ENV['CIRCLE_TOKEN']
 end
 
 def extra_options(path)
-  return '' if ["develop", "master"].include? ENV['CIRCLE_BRANCH'] 
-  repos = File.readlines(path)
+  extra_options = []
+  build_params = { build_parameters: {}}
+  if ["develop", "master"].include? ENV['CIRCLE_BRANCH'] 
+    repos = []
+  else
+    repos = File.readlines(path)
+  end
   repos << "#{ENV['CIRCLE_PROJECT_REPONAME']}:#{ENV['CIRCLE_BRANCH']}"
-  options = repos.join(",").gsub("\n","")
-  "-b #{options}"
+  repos.each do |repo|
+    repo = repo.gsub("\n", "")
+    if repo != "" 
+      parts = repo.split(":")
+      if parts.first == "ernest"
+        build_params[:build_parameters]['BASE_VERSION'] = parts.last
+      elsif parts.first == "ernest-cli"
+        build_params[:build_parameters]['CLI_VERSION'] = parts.last
+      else
+        extra_options << repo
+      end
+    end
+  end
+  if extra_options.length > 0 
+    opts = extra_options.join(",")
+    build_params[:build_parameters]['EXTRA_OPTIONS'] = "-b #{opts}"
+  end
+  build_params
 end
 
 # Build Ernest integration tests
-path = ARGV[0]
-build_params = { build_parameters: { 'EXTRA_OPTIONS' => extra_options(path) } }
+build_params = extra_options(ARGV[0])
 puts "Executing remote build with parameters : #{build_params}"
 project = CircleCi::Project.new(ENV['CIRCLE_PROJECT_USERNAME'], 'ernest')
 res = project.build_branch 'develop', {}, build_params
