@@ -1,57 +1,43 @@
-require 'circleci'
+require_relative 'lib/options'
 
-abort "CIRCLE_TOKEN env var not set" if ENV['CIRCLE_TOKEN'].empty?
-
-CircleCi.configure do |config|
-  config.token = ENV['CIRCLE_TOKEN']
-end
-
-def extra_options(path)
-  extra_options = []
-  build_params = { build_parameters: {}}
-  if ["develop", "master"].include? ENV['CIRCLE_BRANCH'] 
-    repos = []
-  else
-    repos = File.readlines(path)
-  end
-  repos << "#{ENV['CIRCLE_PROJECT_REPONAME']}:#{ENV['CIRCLE_BRANCH']}"
-  repos.each do |repo|
-    repo = repo.gsub("\n", "")
-    if repo != "" 
-      parts = repo.split(":")
-      if parts.first == "ernest"
-        build_params[:build_parameters]['BASE_VERSION'] = parts.last
-      elsif parts.first == "ernest-cli"
-        build_params[:build_parameters]['CLI_VERSION'] = parts.last
-      else
-        extra_options << repo
-      end
-    end
-  end
-  if extra_options.length > 0 
-    opts = extra_options.join(",")
-    build_params[:build_parameters]['EXTRA_OPTIONS'] = "-b #{opts}"
-  end
-  build_params
-end
-
-# Build Ernest integration tests
 build_params = extra_options(ARGV[0])
-puts "Executing remote build with parameters : #{build_params}"
-project = CircleCi::Project.new(ENV['CIRCLE_PROJECT_USERNAME'], 'ernest')
-res = project.build_branch 'develop', {}, build_params
-url = res.body['build_url']
+cli_version = build_params[:build_parameters]['CLI_VERSION']
+base_version = build_params[:build_parameters]['BASE_VERSION']
+extra_options = build_params[:build_parameters]['EXTRA_OPTIONS']
 
-build = CircleCi::Build.new(ENV['CIRCLE_PROJECT_USERNAME'], 'ernest', res.body['build_num'])
-puts "Checking related build #{url}"
-loop do
-  res = build.get
-  break unless ['running', 'not_running', 'queued'].include? res.body['status']
-  putc '.'
-  sleep 10
-end
-puts res.body['status']
-abort "Integration tests are broken (#{url})" if res.body['status'] == 'failed'
-abort "Integration tests are broken (#{url})" unless res.success?
+# Install docker compose
+`curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-\`uname -s\`-\`uname -m\` > /home/ubuntu/bin/docker-compose`
+`chmod +x /home/ubuntu/bin/docker-compose`
 
 
+# Prepare environment
+`export NATS_URI=nats://127.0.0.1:4222`
+`export NATS_URI_TEST=nats://127.0.0.1:4222`
+`export GOBIN=/home/ubuntu/.go_workspace/bin`
+`export CURRENT_INSTANCE=http://ernest.local:80/`
+`export JWT_SECRET=test`
+`export IMPORT_PATH=github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME`
+`export ERNEST_APPLY_DELAY=1`
+`export ERNEST_CRYPTO_KEY=mMYlPIvI11z20H1BnBmB223355667788`
+`export ROOTPATH=/home/ubuntu/.go_workspace/src/github.com/ernestio`
+
+
+# Clone ernestio/ernest
+`mkdir -p $ROOTPATH`
+`cd $ROOTPATH && git clone -b #{base_version} git@github.com:ernestio/ernest.git`
+`$ROOTPATH/ernest/internal/ci_install_service.sh r3labs natsc master`
+`$ROOTPATH/ernest/internal/ci_install_service.sh r3labs composable master`
+`$ROOTPATH/ernest/internal/ci_install_service.sh ernestio ernest-cli #{cli_version}`
+`mkdir -p /tmp/composable`
+`sed -i "s:443 ssl:80:g" $ROOTPATH/ernest/config/nginx/ernest.local`
+`sed -i "s:ERNESTHOST:ernest.local:g" $ROOTPATH/ernest/config/nginx/ernest.local`
+`sed -i "/ssl_certificate/d" $ROOTPATH/ernest/config/nginx/ernest.local`
+`sed -i "s:443:80:g" $ROOTPATH/ernest/template.yml`
+
+# Build ernest on specific versions
+`cd $ROOTPATH/ernest && composable gen -E ERNEST_CRYPTO_KEY=$ERNEST_CRYPTO_KEY -exclude='*-aws-connector,*-vcloud-connector' -G #{base_version} #{extra_options} definition.yml template.yml --`
+`cd $ROOTPATH/ernest && docker-compose -f docker-compose.yml up -d`
+
+# Run ernestio/ernest tests
+`$ROOTPATH/ernest/internal/ci_setup.sh`
+exec("cd $ROOTPATH/ernest && make dev-deps && make test")
