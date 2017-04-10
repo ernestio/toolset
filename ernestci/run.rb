@@ -4,6 +4,8 @@ build_params = extra_options(ARGV[0])
 cli_version = build_params[:build_parameters]['CLI_VERSION']
 base_version = build_params[:build_parameters]['BASE_VERSION']
 extra_options = build_params[:build_parameters]['EXTRA_OPTIONS']
+default_version = "master"
+default_version = "develop" if base_version != "master"
 
 # Install docker compose
 `curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-\`uname -s\`-\`uname -m\` > /home/ubuntu/bin/docker-compose`
@@ -35,7 +37,7 @@ extra_options = build_params[:build_parameters]['EXTRA_OPTIONS']
 `sed -i "s:443:80:g" $ROOTPATH/ernest/template.yml`
 
 # Build ernest on specific versions
-`cd $ROOTPATH/ernest && composable gen -E ERNEST_CRYPTO_KEY=$ERNEST_CRYPTO_KEY -exclude='*-aws-connector,*-vcloud-connector' -G #{base_version} #{extra_options} definition.yml template.yml --`
+`cd $ROOTPATH/ernest && composable gen -E ERNEST_CRYPTO_KEY=$ERNEST_CRYPTO_KEY -exclude='*-aws-connector,*-vcloud-connector' -G #{default_version} #{extra_options} definition.yml template.yml --`
 `cd $ROOTPATH/ernest && docker-compose -f docker-compose.yml up -d`
 
 # Run ernestio/ernest tests
