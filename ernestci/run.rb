@@ -51,5 +51,8 @@ env_variables = "#{env_variables},ERNEST_PREMIUM=#{licensed.to_s}" if not licens
 `cp -R #{extra_features} $ROOTPATH/ernest/internal/features/` if not extra_features.to_s.empty?
 
 # Run ernestio/ernest tests
+puts "hit1"
 `$ROOTPATH/ernest/internal/ci_setup.sh`
+puts "hit2"
 exec("cd $ROOTPATH/ernest && make dev-deps && make test")
+puts "hit3"
