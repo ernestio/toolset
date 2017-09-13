@@ -20,13 +20,13 @@ default_version = "develop" if base_version != "master"
 # Prepare environment
 `export NATS_URI=nats://127.0.0.1:4222`
 `export NATS_URI_TEST=nats://127.0.0.1:4222`
-`export GOBIN=/home/ubuntu/.go_workspace/bin`
+`export GOBIN=/home/circleci/.go_workspace/bin`
 `export CURRENT_INSTANCE=http://ernest.local:80/`
 `export JWT_SECRET=test`
 `export IMPORT_PATH=github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME`
 `export ERNEST_APPLY_DELAY=1`
 `export ERNEST_CRYPTO_KEY=mMYlPIvI11z20H1BnBmB223355667788`
-`export ROOTPATH=/home/ubuntu/.go_workspace/src/github.com/ernestio`
+`export ROOTPATH=/home/circleci/.go_workspace/src/github.com/ernestio`
 
 
 # Clone ernestio/ernest
