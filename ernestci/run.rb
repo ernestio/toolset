@@ -13,8 +13,8 @@ default_version = "master"
 default_version = "develop" if base_version != "master"
 
 # Install docker compose
-`curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-\`uname -s\`-\`uname -m\` > /home/ubuntu/bin/docker-compose`
-`chmod +x /home/ubuntu/bin/docker-compose`
+#`curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-\`uname -s\`-\`uname -m\` > /home/ubuntu/bin/docker-compose`
+#`chmod +x /home/ubuntu/bin/docker-compose`
 
 
 # Prepare environment
