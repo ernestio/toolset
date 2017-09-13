@@ -30,13 +30,11 @@ default_version = "develop" if base_version != "master"
 
 
 # Clone ernestio/ernest
-puts "hit1"
 `mkdir -p $ROOTPATH`
 `cd $ROOTPATH && git clone -b #{base_version} git@github.com:ernestio/ernest.git`
 `$ROOTPATH/ernest/internal/ci_install_service.sh r3labs natsc master`
 `$ROOTPATH/ernest/internal/ci_install_service.sh r3labs composable master`
 `$ROOTPATH/ernest/internal/ci_install_service.sh ernestio ernest-cli #{cli_version}`
-puts "hit2"
 `mkdir -p /tmp/composable`
 `sed -i "s:443 ssl:80:g" $ROOTPATH/ernest/config/nginx/ernest.local`
 `sed -i "s:ERNESTHOST:ernest.local:g" $ROOTPATH/ernest/config/nginx/ernest.local`
@@ -44,16 +42,12 @@ puts "hit2"
 `sed -i "s:443:80:g" $ROOTPATH/ernest/template.yml`
 
 # Build ernest on specific versions
-puts "hit3"
 `cd $ROOTPATH/ernest && cat premium.yml >> definition.yml` if not licensed.to_s.empty?
 env_variables = "-E ERNEST_CRYPTO_KEY=$ERNEST_CRYPTO_KEY"
 env_variables = "#{env_variables},ERNEST_PREMIUM=#{licensed.to_s}" if not licensed.to_s.empty?
 `cd $ROOTPATH/ernest && composable set build.path /tmp/composable`
-puts "hit4"
 `cd $ROOTPATH/ernest && composable generate #{env_variables} -exclude='*-aws-connector,*-vcloud-connector,*-azure-connector' -G #{default_version} #{extra_options} definition.yml template.yml --`
-puts "hit5"
 `cd $ROOTPATH/ernest && docker-compose -f docker-compose.yml up -d`
-puts "hit6"
 `cp -R #{extra_features} $ROOTPATH/ernest/internal/features/` if not extra_features.to_s.empty?
 
 # Run ernestio/ernest tests
