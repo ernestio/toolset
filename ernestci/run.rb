@@ -30,6 +30,7 @@ default_version = "develop" if base_version != "master"
 
 
 # Clone ernestio/ernest
+puts 'hit'
 `mkdir -p $ROOTPATH`
 `cd $ROOTPATH && git clone -b #{base_version} git@github.com:ernestio/ernest.git`
 `$ROOTPATH/ernest/internal/ci_install_service.sh r3labs natsc master`
