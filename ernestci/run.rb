@@ -12,11 +12,6 @@ extra_options = build_params[:build_parameters]['EXTRA_OPTIONS']
 default_version = "master"
 default_version = "develop" if base_version != "master"
 
-# Install docker compose
-#`curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-\`uname -s\`-\`uname -m\` > /home/ubuntu/bin/docker-compose`
-#`chmod +x /home/ubuntu/bin/docker-compose`
-
-
 # Prepare environment
 `export NATS_URI=nats://127.0.0.1:4222`
 `export NATS_URI_TEST=nats://127.0.0.1:4222`
@@ -28,9 +23,7 @@ default_version = "develop" if base_version != "master"
 `export ERNEST_CRYPTO_KEY=mMYlPIvI11z20H1BnBmB223355667788`
 `export ROOTPATH=/home/circleci/.go_workspace/src/github.com/ernestio`
 
-
 # Clone ernestio/ernest
-puts 'hit'
 `mkdir -p $ROOTPATH`
 `cd $ROOTPATH && git clone -b #{base_version} git@github.com:ernestio/ernest.git`
 `$ROOTPATH/ernest/internal/ci_install_service.sh r3labs natsc master`
@@ -52,8 +45,5 @@ env_variables = "#{env_variables},ERNEST_PREMIUM=#{licensed.to_s}" if not licens
 `cp -R #{extra_features} $ROOTPATH/ernest/internal/features/` if not extra_features.to_s.empty?
 
 # Run ernestio/ernest tests
-puts "hit1"
 `$ROOTPATH/ernest/internal/ci_setup.sh`
-puts "hit2"
 exec("cd $ROOTPATH/ernest && make dev-deps && make test")
-puts "hit3"
