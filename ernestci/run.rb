@@ -66,7 +66,7 @@ extra_options = "#{extra_options} --edition enterprise" if options[:enterprise]
 #puts "----"
 #puts composable
 #puts "----"
-`cd $ROOTPATH/ernest && ERNESTHOSTNAME=localhost ERNESTUSER=ci_admin ERNESTPASSWORD=secret123 ./setup`
+system("cd $ROOTPATH/ernest && ERNESTHOSTNAME=localhost ERNESTUSER=ci_admin ERNESTPASSWORD=secret123 ./setup")
 #`cd $ROOTPATH/ernest && docker-compose -f docker-compose.yml up -d`
 `cp -R #{extra_features} $ROOTPATH/ernest/internal/features/` if not extra_features.to_s.empty?
 
