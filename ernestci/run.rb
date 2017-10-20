@@ -43,7 +43,7 @@ extra_options = "#{extra_options} --edition enterprise" if options[:enterprise]
 `$ROOTPATH/ernest/internal/ci_install_service.sh r3labs composable master`
 `mkdir -p /tmp/composable`
 # composable generate
-`cd $ROOTPATH/ernest && ./composable generate -G #{default_version} -E ERNEST_CRYPTO_KEY=$ERNEST_CRYPTO_KEY -exclude='*-aws-connector,*-vcloud-connector,*-azure-connector' #{extra_options} definition.yml template.yml`
+`cd $ROOTPATH/ernest && composable generate -G #{default_version} -E ERNEST_CRYPTO_KEY=$ERNEST_CRYPTO_KEY -exclude='*-aws-connector,*-vcloud-connector,*-azure-connector' #{extra_options} definition.yml template.yml`
 
 #`$ROOTPATH/ernest/internal/ci_install_service.sh r3labs natsc master`
 #`$ROOTPATH/ernest/internal/ci_install_service.sh r3labs composable master`
