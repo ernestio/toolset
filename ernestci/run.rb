@@ -29,9 +29,9 @@ default_version = "develop" if base_version != "master"
 #`export ERNEST_CRYPTO_KEY=mMYlPIvI11z20H1BnBmB223355667788`
 #`export ROOTPATH=/home/circleci/.go_workspace/src/github.com/ernestio`
 
-`export ERNESTHOSTNAME=localhost`
-`export ERNESTUSER=ci_admin`
-`export ERNESTPASSWORD=secret123`
+#`export ERNESTHOSTNAME=localhost`
+#`export ERNESTUSER=ci_admin`
+#`export ERNESTPASSWORD=secret123`
 
 extra_options = "#{extra_options} --edition enterprise" if options[:enterprise]
 
@@ -41,6 +41,7 @@ extra_options = "#{extra_options} --edition enterprise" if options[:enterprise]
 
 
 `$ROOTPATH/ernest/internal/ci_install_service.sh r3labs composable master`
+`composable set build.path /tmp/composable`
 `mkdir -p /tmp/composable`
 # composable generate
 `cd $ROOTPATH/ernest && composable generate -G #{default_version} -E ERNEST_CRYPTO_KEY=$ERNEST_CRYPTO_KEY -exclude='*-aws-connector,*-vcloud-connector,*-azure-connector' #{extra_options} definition.yml template.yml`
@@ -65,7 +66,7 @@ extra_options = "#{extra_options} --edition enterprise" if options[:enterprise]
 #puts "----"
 #puts composable
 #puts "----"
-`cd $ROOTPATH/ernest && ./setup`
+`cd $ROOTPATH/ernest && ERNESTHOSTNAME=localhost ERNESTUSER=ci_admin ERNESTPASSWORD=secret123 ./setup`
 #`cd $ROOTPATH/ernest && docker-compose -f docker-compose.yml up -d`
 `cp -R #{extra_features} $ROOTPATH/ernest/internal/features/` if not extra_features.to_s.empty?
 
