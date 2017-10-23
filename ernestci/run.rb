@@ -9,7 +9,7 @@ extra_features = "#{ARGV[1]}" if ARGV.length > 0
 
 options = {}
 OptionParser.new do |opt|
-	opt.on('--enterprise') { |o| options[:name] = o }
+	opt.on('--enterprise') { |o| options[:enterprise] = o }
 end.parse!
 
 cli_version = build_params[:build_parameters]['CLI_VERSION']
@@ -33,7 +33,7 @@ default_version = "develop" if base_version != "master"
 #`export ERNESTUSER=ci_admin`
 #`export ERNESTPASSWORD=secret123`
 
-extra_options = "#{extra_options} --edition enterprise" if options[:enterprise2]
+extra_options = "#{extra_options} --edition enterprise" if options[:enterprise]
 
 # Clone ernestio/ernest
 `mkdir -p $ROOTPATH`
