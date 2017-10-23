@@ -33,7 +33,7 @@ default_version = "develop" if base_version != "master"
 #`export ERNESTUSER=ci_admin`
 #`export ERNESTPASSWORD=secret123`
 
-extra_options = "#{extra_options} --edition enterprise" if options[:enterprise]
+extra_options = "#{extra_options} --edition enterprise" if options[:enterprise2]
 
 # Clone ernestio/ernest
 `mkdir -p $ROOTPATH`
