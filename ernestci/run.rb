@@ -6,7 +6,7 @@ extra_features = "#{ARGV[1]}" if ARGV.length > 0
 
 options = {}
 OptionParser.new do |opt|
-	opt.on('--enterprise') { |o| options[:enterprise] = o }
+	opt.on('--enterprise') { |o| options[:enterprise] = true }
 end.parse!
 
 cli_version = build_params[:build_parameters]['CLI_VERSION']
@@ -14,7 +14,7 @@ base_version = build_params[:build_parameters]['BASE_VERSION']
 extra_options = build_params[:build_parameters]['EXTRA_OPTIONS']
 default_version = "master"
 default_version = "develop" if base_version != "master"
-extra_options = "#{extra_options} --edition enterprise" if options[:enterprise]
+extra_options = "#{extra_options} --edition enterprise" if options.key?(:enterprise)
 
 # clone ernest repo
 `mkdir -p $ROOTPATH`
