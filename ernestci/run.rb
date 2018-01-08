@@ -68,31 +68,9 @@ process = IO.popen("cd $ROOTPATH/ernest && make test") do |io|
 	end
 	io.close
 	status = $?.to_i
-	puts "+++++++++++++"
-	puts "+++++++++++++"
-	puts "+++++++++++++"
-	puts status
-	puts "+++++++++++++"
-	puts "+++++++++++++"
-	puts "+++++++++++++"
 end
 
-=begin
-sw = false
-line = ""
-status = 0
-IO.popen("cd $ROOTPATH/ernest && make test").each do |l|
-	puts line
-	sw = true if finished?(line)
-	output << line if sw
-	line = l.chomp
-	status = $?.to_i if status == 0
-end
-status = $?.to_i if status == 0
-puts line
-=end
-
-if output.length > 1
+if output.length > 2
   if ENV.key? 'SLACK_API_TOKEN'
     Slack.configure do |config|
       config.token = ENV['SLACK_API_TOKEN']
@@ -114,12 +92,4 @@ if output.length > 1
 	end
 end
 
-puts ("---------------")
-puts ("---------------")
-puts ("---------------")
-puts ("---------------")
-puts status
-puts ("---------------")
-puts ("---------------")
-puts ("---------------")
-exit(status.to_i)
+exit 1 if status > 0
